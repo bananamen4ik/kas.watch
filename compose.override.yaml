@@ -1,0 +1,19 @@
+services:
+  nginx:
+    volumes:
+      - type: bind
+        source: ./nginx/html
+        target: /usr/share/nginx/html
+
+      - type: bind
+        source: ./nginx/conf
+        target: /etc/nginx
+
+  fastapi-core:
+    build:
+      dockerfile: Dockerfile.dev
+
+    volumes:
+      - type: bind
+        source: ./fastapi-core/app
+        target: /root/app

@@ -1,0 +1,12 @@
+FROM python:3.12.8
+
+WORKDIR /root/app
+
+RUN apt update && apt upgrade -y
+
+COPY ./app /root/app
+COPY ./requirements.txt /root/app
+
+RUN pip install --upgrade pip && pip install -r requirements.txt && rm requirements.txt
+
+ENTRYPOINT ["fastapi", "run", "main.py", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

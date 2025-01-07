@@ -1,0 +1,20 @@
+services:
+  nginx:
+    build: ./nginx
+    container_name: "nginx"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+    depends_on:
+      - fastapi-core
+
+    ports:
+      - "127.0.0.1:80:80"
+
+  fastapi-core:
+    build: ./fastapi-core
+    container_name: "fastapi-core"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
