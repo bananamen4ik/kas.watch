@@ -171,4 +171,4 @@ cython_debug/
 .pypirc
 
 # Oth
-./app/profile.session-journal
+app/profile.session-journal

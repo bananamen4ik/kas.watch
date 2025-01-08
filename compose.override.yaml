@@ -2,11 +2,11 @@ services:
   nginx:
     volumes:
       - type: bind
-        source: ./nginx/html
+        source: nginx/html
         target: /usr/share/nginx/html
 
       - type: bind
-        source: ./nginx/conf
+        source: nginx/conf
         target: /etc/nginx
 
   fastapi-core:
@@ -15,11 +15,11 @@ services:
 
     volumes:
       - type: bind
-        source: ./fastapi-core/app
+        source: fastapi-core/app
         target: /root/app
 
   telethon-kspr:
     volumes:
       - type: bind
-        source: ./telethon-kspr/app
+        source: telethon-kspr/app
         target: /root/app

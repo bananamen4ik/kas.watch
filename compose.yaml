@@ -1,6 +1,6 @@
 services:
   nginx:
-    build: ./nginx
+    build: nginx
     container_name: "nginx"
     tty: true
     stdin_open: true
@@ -13,7 +13,7 @@ services:
       - "127.0.0.1:80:80"
 
   fastapi-core:
-    build: ./fastapi-core
+    build: fastapi-core
     container_name: "fastapi-core"
     tty: true
     stdin_open: true
@@ -23,7 +23,7 @@ services:
       - db
 
   db:
-    build: ./db
+    build: db
     container_name: "db"
     tty: true
     stdin_open: true
@@ -37,7 +37,7 @@ services:
       - db:/var/lib/postgresql/data
 
   telethon-kspr:
-    build: ./telethon-kspr
+    build: telethon-kspr
     container_name: "telethon-kspr"
     tty: true
     stdin_open: true
