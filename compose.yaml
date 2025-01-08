@@ -19,6 +19,9 @@ services:
     stdin_open: true
     restart: unless-stopped
 
+    depends_on:
+      - db
+
   db:
     build: ./db
     container_name: "db"
@@ -32,6 +35,16 @@ services:
 
     volumes:
       - db:/var/lib/postgresql/data
+
+  telethon-kspr:
+    build: ./telethon-kspr
+    container_name: "telethon-kspr"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+    depends_on:
+      - db
 
 volumes:
   db:

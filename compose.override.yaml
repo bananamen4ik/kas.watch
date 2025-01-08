@@ -17,3 +17,9 @@ services:
       - type: bind
         source: ./fastapi-core/app
         target: /root/app
+
+  telethon-kspr:
+    volumes:
+      - type: bind
+        source: ./telethon-kspr/app
+        target: /root/app

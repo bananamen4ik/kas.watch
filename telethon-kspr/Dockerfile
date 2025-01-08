@@ -9,4 +9,4 @@ COPY ./requirements.txt /root/app
 
 RUN pip install --upgrade pip && pip install -r requirements.txt && rm requirements.txt
 
-CMD ["fastapi", "run", "main.py", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+CMD python3 main.py
