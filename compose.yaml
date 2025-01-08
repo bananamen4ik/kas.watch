@@ -31,7 +31,7 @@ services:
     shm_size: 128mb
 
     environment:
-      POSTGRES_PASSWORD: vHkSbSY&526_*22a
+      POSTGRES_PASSWORD: "vHkSbSY&526_*22a"
 
     volumes:
       - db:/var/lib/postgresql/data
