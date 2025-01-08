@@ -1,11 +1,16 @@
 import re
-from typing import Optional
-
 import asyncio
+from typing import Optional
 
 from telethon import TelegramClient, events
 from telethon.tl.custom.message import Message
 from telethon.tl.types import TypePeer, PeerChannel, PeerUser
+
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
+
+engine: AsyncEngine = create_async_engine(
+    "postgresql+asyncpg://main:vHkSbSY&526_*22a@db/main"
+)
 
 api_id: int = 25341299
 api_hash: str = "6594f728fbae8e3a7ede766ef7c494bd"
@@ -25,13 +30,11 @@ async def new_message(event: events.NewMessage.Event):
     if peer_id.channel_id != 2193761946 or from_id.user_id != 7338170991:
         return
 
-    ticker_pattern: str = r"Ticker: (.+?)\\"
-    krc20_amount_pattern: str = r"KRC20 Amount: (.+?)\\"
-    kas_amount_pattern: str = r"KAS Amount: (.+?)\\"
-    price_per_unit_pattern: str = r"Price per unit: (.+?)\\"
-    contract_address_pattern: str = r"Contract Address: (.+?)"
-
-    message_text = "🚀 New Transaction\n\n🔹 Ticker: PEPE\n📊 KRC20 Amount: 476574\n💰 KAS Amount: 115\n💵 Price per unit: 0.00024131\n\n🔗 Contract Address: kaspa:qp772xwvjlfa54kajvxz2zyn52mmjf7usctm8e64635885z0eq4rjku0cm962"
+    ticker_pattern: str = r"Ticker: (.+?)\n"
+    krc20_amount_pattern: str = r"KRC20 Amount: (.+?)\n"
+    kas_amount_pattern: str = r"KAS Amount: (.+?)\n"
+    price_per_unit_pattern: str = r"Price per unit: (.+?)\n"
+    contract_address_pattern: str = r"Contract Address: (.+?)$"
 
     ticker: str = re.search(ticker_pattern, message_text).group(1)
     krc20_amount: float = float(re.search(krc20_amount_pattern, message_text).group(1))
