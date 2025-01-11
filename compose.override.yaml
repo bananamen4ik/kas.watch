@@ -23,3 +23,16 @@ services:
       - type: bind
         source: telethon-kspr/app
         target: /root/app
+
+  redis-insight:
+    image: redis/redisinsight:2.64
+    container_name: "redis-insight"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+    depends_on:
+      - redis-server
+
+    ports:
+      - "127.0.0.1:5540:5540"

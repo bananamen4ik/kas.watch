@@ -20,7 +20,7 @@ services:
     restart: unless-stopped
 
     depends_on:
-      - db
+      - redis-server
 
   db:
     build: db
@@ -40,6 +40,16 @@ services:
   telethon-kspr:
     build: telethon-kspr
     container_name: "telethon-kspr"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+    depends_on:
+      - fastapi-core
+
+  redis-server:
+    image: redis/redis-stack-server:7.4.0-v2
+    container_name: "redis-server"
     tty: true
     stdin_open: true
     restart: unless-stopped

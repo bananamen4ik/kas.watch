@@ -1,6 +1,7 @@
 import re
 import asyncio
 import logging
+import json
 
 from typing import Optional, List
 from datetime import datetime, timezone
@@ -31,13 +32,15 @@ from sqlalchemy.ext.asyncio import (
     AsyncAttrs
 )
 
+from redis.asyncio import Redis
+
 
 class Base(AsyncAttrs, DeclarativeBase):
     pass
 
 
 class KRC20Transaction(Base):
-    __tablename__ = "krc20_transcations"
+    __tablename__ = "krc20_transactions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     id_source: Mapped[int] = mapped_column(Integer, ForeignKey("sources.id"), nullable=False)
@@ -96,6 +99,8 @@ api_hash: str = "6594f728fbae8e3a7ede766ef7c494bd"
 client: TelegramClient = TelegramClient("profile", api_id, api_hash)
 is_synced: bool = False
 
+redis_client: Redis = Redis(host="redis-server", decode_responses=True)
+
 
 @client.on(events.NewMessage())
 async def new_message(event: events.NewMessage.Event):
@@ -120,19 +125,33 @@ async def new_message(event: events.NewMessage.Event):
         app_logger.warning(f"Skip new message: {message_text}")
         return
 
+    message_data["id_source"] = 1
+    message_data["created_at"] = message.date
+
     async with async_session() as session:
         new_transaction: KRC20Transaction = KRC20Transaction(
-            id_source=1,
+            id_source=message_data["id_source"],
             ticker=message_data["ticker"],
             krc20_amount=message_data["krc20_amount"],
             kas_amount=message_data["kas_amount"],
-            created_at=message.date
+            created_at=message_data["created_at"]
         )
 
         session.add(new_transaction)
         await session.commit()
 
-    app_logger.info("Added new transcation")
+    message_data["created_at"] = int(message.date.timestamp() * 1000)
+
+    message_data_json: str = json.dumps(message_data)
+    await redis_client.lpush("last_krc20_transactions_kspr", message_data_json)
+    await redis_client.lpush("last_krc20_transactions", message_data_json)
+
+    await redis_client.rpop("last_krc20_transactions_kspr")
+    await redis_client.rpop("last_krc20_transactions")
+
+    await redis_client.publish("updates", message_data_json)
+
+    app_logger.info("Added new transaction")
     app_logger.debug(message_text)
 
 
@@ -142,7 +161,7 @@ async def init_db():
     app_logger.info("Init DB")
 
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
     async with async_session() as session:
