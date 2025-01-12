@@ -28,7 +28,6 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncEngine,
     async_sessionmaker,
-    AsyncConnection,
     AsyncAttrs
 )
 
@@ -66,16 +65,22 @@ class Source(Base):
     krc20_transactions: Mapped[List["KRC20Transaction"]] = relationship(back_populates="source")
 
 
+config: dict = {
+    "last_krc20_transactions_count": 100,
+    "last_krc20_transactions_kspr_count": 100
+}
+
+
 logging.basicConfig(
     filename="app.log",
     format="[%(levelname)s] %(asctime)s: %(name)s %(message)s",
     level=logging.WARNING
 )
 
-app_logger = logging.getLogger("app_logger")
-file_handler = logging.FileHandler("app.log")
-console_handler = logging.StreamHandler()
-formatter = logging.Formatter("[%(levelname)s] %(asctime)s: %(name)s %(message)s")
+app_logger: logging.Logger = logging.getLogger("app_logger")
+file_handler: logging.FileHandler = logging.FileHandler("app.log")
+console_handler: logging.StreamHandler = logging.StreamHandler()
+formatter: logging.Formatter = logging.Formatter("[%(levelname)s] %(asctime)s: %(name)s %(message)s")
 
 app_logger.setLevel(logging.DEBUG)
 file_handler.setLevel(logging.INFO)
@@ -141,42 +146,25 @@ async def new_message(event: events.NewMessage.Event):
         await session.commit()
 
     message_data["created_at"] = int(message.date.timestamp() * 1000)
-
-    message_data_json: str = json.dumps(message_data)
-    await redis_client.lpush("last_krc20_transactions_kspr", message_data_json)
-    await redis_client.lpush("last_krc20_transactions", message_data_json)
-
-    await redis_client.rpop("last_krc20_transactions_kspr")
-    await redis_client.rpop("last_krc20_transactions")
-
-    await redis_client.publish("updates", message_data_json)
+    await send_krc20_transaction_to_redis(message_data)
 
     app_logger.info("Added new transaction")
     app_logger.debug(message_text)
 
 
-async def init_db():
-    conn: AsyncConnection
+async def send_krc20_transaction_to_redis(message_data: dict):
+    message_data_json: str = json.dumps(message_data)
 
-    app_logger.info("Init DB")
+    await redis_client.lpush("last_krc20_transactions_kspr", message_data_json)
+    await redis_client.lpush("last_krc20_transactions", message_data_json)
 
-    async with engine.begin() as conn:
-        # await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+    if (await redis_client.llen("last_krc20_transactions_kspr")) > config["last_krc20_transactions_kspr_count"]:
+        await redis_client.rpop("last_krc20_transactions_kspr")
 
-    async with async_session() as session:
-        source: Optional[Source] = (await session.execute(
-            select(Source).limit(1)
-        )).scalar()
+    if (await redis_client.llen("last_krc20_transactions")) > config["last_krc20_transactions_count"]:
+        await redis_client.rpop("last_krc20_transactions")
 
-        if source is None:
-            app_logger.info("Sources not found - INIT")
-
-            session.add(
-                Source(id=1, name="KSPR Bot", link="https://t.me/kspr_home_bot?start=AXGfUlw")
-            )
-
-            await session.commit()
+    await redis_client.publish("updates", message_data_json)
 
 
 async def get_message_data(message_text: str) -> Optional[dict]:
@@ -235,16 +223,22 @@ async def sync_krc20_transactions():
             if message.date <= to_date:
                 break
 
+            message_data["id_source"] = 1
+            message_data["created_at"] = message.date
+
             new_transaction: KRC20Transaction = KRC20Transaction(
-                id_source=1,
+                id_source=message_data["id_source"],
                 ticker=message_data["ticker"],
                 krc20_amount=message_data["krc20_amount"],
                 kas_amount=message_data["kas_amount"],
-                created_at=message.date
+                created_at=message_data["created_at"]
             )
 
             session.add(new_transaction)
             await session.flush()
+
+            message_data["created_at"] = int(message.date.timestamp() * 1000)
+            await send_krc20_transaction_to_redis(message_data)
 
             app_logger.debug(f"Added new transaction {message.date}")
 
@@ -255,8 +249,6 @@ async def main():
     global is_synced
 
     app_logger.info("App starting..")
-
-    await init_db()
 
     await client.start()
     await sync_krc20_transactions()
