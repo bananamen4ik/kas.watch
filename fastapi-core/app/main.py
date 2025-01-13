@@ -203,7 +203,7 @@ async def init_db():
 
 async def add_pupsub_reader(pubsub: PubSub, websocket: WebSocket):
     while True:
-        message = await pubsub.get_message(ignore_subscribe_messages=True)
+        message = await pubsub.get_message(ignore_subscribe_messages=True, timeout=0.2)
 
         if message:
             await websocket.send_text(message["data"])
