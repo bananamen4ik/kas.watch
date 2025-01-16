@@ -8,4 +8,4 @@ COPY html /usr/share/nginx/html
 RUN rm -rf /etc/nginx/*
 COPY conf /etc/nginx
 
-COPY letsencrypt /etc/letsencrypt
+COPY certifications /etc/nginx/certifications
