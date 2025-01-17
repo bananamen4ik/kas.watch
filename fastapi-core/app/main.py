@@ -143,7 +143,7 @@ async def get_last_krc20_transactions() -> Tuple[Sequence[KRC20Transaction], Seq
             ).order_by(
                 KRC20Transaction.created_at.desc()
             ).limit(
-                config["last_krc20_transactions_count"]
+                config["last_krc20_transactions_kspr_count"]
             )
         )).scalars().all()
 

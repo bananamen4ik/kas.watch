@@ -206,10 +206,12 @@ async def sync_krc20_transactions():
         last_transaction: Optional[KRC20Transaction] = (await session.execute(
             select(KRC20Transaction).order_by(KRC20Transaction.created_at.desc()).limit(1)
         )).scalar()
+        last_transactions: List[dict] = []
 
         if last_transaction:
             to_date = last_transaction.created_at
 
+        await client.get_dialogs()  # fix
         async for message in client.iter_messages(
                 PeerChannel(2193761946),
                 from_user=PeerUser(7338170991)
@@ -238,11 +240,15 @@ async def sync_krc20_transactions():
             await session.flush()
 
             message_data["created_at"] = int(message.date.timestamp() * 1000)
-            await send_krc20_transaction_to_redis(message_data)
+            if len(last_transactions) < config["last_krc20_transactions_count"]:
+                last_transactions.append(message_data)
 
             app_logger.debug(f"Added new transaction {message.date}")
 
         await session.commit()
+
+        for transaction in reversed(last_transactions):
+            await send_krc20_transaction_to_redis(transaction)
 
 
 async def main():
