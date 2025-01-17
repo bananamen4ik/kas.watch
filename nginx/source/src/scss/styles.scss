@@ -1,1 +1,15 @@
 @import "bootstrap/scss/bootstrap";
+
+.header-main {
+  font-size: 1.125rem;
+}
+
+.header-main__logo {
+  width: 25px;
+  height: 25px;
+  margin-bottom: 4px;
+}
+
+.header-main__navbar-nav {
+  text-align: center;
+}

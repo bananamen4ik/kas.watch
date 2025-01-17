@@ -1,16 +1,99 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>kas.watch</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
-    <script type="module" src="js/main.js"></script>
+    <title>KAS and KRC20: Online Monitoring of Token Prices and Market</title>
+    <meta name="description" content="Track real-time token prices and market trends for KAS and KRC20. Get updates and analytics for informed investment and trading decisions.">
+    <meta name="keywords" content="Kaspa, KAS tokens, KRC20 tokens, Kaspa price, KRC20 token price, KRC20 monitoring, KAS coin tracking, Real-time Kaspa market data, KAS cryptocurrency, KRC20 token market, Kaspa coin chart, Cryptocurrency market tracker, KAS price tracking, Token prices Kaspa, KAS monitoring, Crypto prices KRC20, KAS crypto news">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <script type="module" src="/js/main.js"></script>
 </head>
 <body>
-<h1>Coming soon...</h1>
+<header class="header-main">
+    <nav class="navbar navbar-expand-sm bg-body-secondary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="/images/logos/Kaspa-Icon-256.png" alt="Logo" class="header-main__logo d-inline-block align-middle">
+                kas.watch
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="header-main__navbar-nav navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link btn" role="button" data-bs-toggle="modal" data-bs-target="#modalContact" href="#">Contact</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link btn" role="button" data-bs-toggle="modal" data-bs-target="#modalAbout" href="#">About</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-warning btn" role="button" data-bs-toggle="modal" data-bs-target="#modalDonate" href="#">Donate</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Modals -->
+<div class="modal fade" id="modalContact" tabindex="-1" aria-labelledby="modalContact" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Contact us</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Links and etc...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAbout" tabindex="-1" aria-labelledby="modalAbout" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">About</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Iam and and and...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDonate" tabindex="-1" aria-labelledby="modalDonate" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Donate</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Help pleaaaseee
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
