@@ -254,6 +254,9 @@ async def sync_krc20_transactions():
 async def main():
     global is_synced
 
+    while await redis_client.get("fastapi-core-ready") is None:
+        await asyncio.sleep(1)
+
     app_logger.info("App starting..")
 
     await client.start()

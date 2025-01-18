@@ -108,14 +108,15 @@ async def lifespan(app: FastAPI):
 
     last_krc20_transactions, last_krc20_transactions_kspr = await get_last_krc20_transactions()
 
-    last_krc20_transactions_redis: list[str] = await krc20_transactions_to_redis(
+    last_krc20_transactions_redis: List[str] = await krc20_transactions_to_redis(
         last_krc20_transactions
     )
-    last_krc20_transactions_kspr_redis: list[str] = await krc20_transactions_to_redis(
+    last_krc20_transactions_kspr_redis: List[str] = await krc20_transactions_to_redis(
         last_krc20_transactions_kspr
     )
 
     await init_redis(last_krc20_transactions_redis, last_krc20_transactions_kspr_redis)
+    await mark_as_done_in_redis()
     yield
 
 
@@ -125,6 +126,10 @@ app: FastAPI = FastAPI(
     openapi_url=None,
     lifespan=lifespan
 )
+
+
+async def mark_as_done_in_redis():
+    await redis_client.set("fastapi-core-ready", 1)
 
 
 async def get_last_krc20_transactions() -> Tuple[Sequence[KRC20Transaction], Sequence[KRC20Transaction]]:
@@ -150,7 +155,7 @@ async def get_last_krc20_transactions() -> Tuple[Sequence[KRC20Transaction], Seq
     return last_krc20_transactions, last_krc20_transactions_kspr
 
 
-async def krc20_transactions_to_redis(transactions: Sequence[KRC20Transaction]) -> list[str]:
+async def krc20_transactions_to_redis(transactions: Sequence[KRC20Transaction]) -> List[str]:
     transactions_redis: list[str] = []
 
     for transaction in transactions:
@@ -168,10 +173,10 @@ async def krc20_transactions_to_redis(transactions: Sequence[KRC20Transaction]) 
 
 
 async def init_redis(
-        last_krc20_transactions: list[str],
-        last_krc20_transactions_kspr: list[str]
+        last_krc20_transactions: List[str],
+        last_krc20_transactions_kspr: List[str]
 ):
-    await redis_client.delete("last_krc20_transactions", "last_krc20_transactions_kspr")
+    await redis_client.flushall()
 
     await redis_client.rpush("last_krc20_transactions", *last_krc20_transactions)
     await redis_client.rpush("last_krc20_transactions_kspr", *last_krc20_transactions_kspr)
@@ -209,9 +214,20 @@ async def add_pupsub_reader(pubsub: PubSub, websocket: WebSocket):
             await websocket.send_text(message["data"])
 
 
+async def get_list_redis(key: str) -> List[str]:
+    return await redis_client.lrange(key, 0, -1)
+
+
+async def init_ws_client(websocket: WebSocket):
+    for transaction in reversed(await get_list_redis("last_krc20_transactions")):
+        await websocket.send_text(transaction)
+
+
 @app.websocket("/ws")
 async def ws(websocket: WebSocket):
     await websocket.accept()
+
+    await init_ws_client(websocket)
 
     pubsub: PubSub = redis_client.pubsub()
     await pubsub.subscribe("updates")
