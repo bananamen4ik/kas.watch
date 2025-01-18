@@ -4,8 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>KAS and KRC20: Online Monitoring of Token Prices and Market</title>
-    <meta name="description" content="Track real-time token prices and market trends for KAS and KRC20. Get updates and analytics for informed investment and trading decisions.">
-    <meta name="keywords" content="Kaspa, KAS tokens, KRC20 tokens, Kaspa price, KRC20 token price, KRC20 monitoring, KAS coin tracking, Real-time Kaspa market data, KAS cryptocurrency, KRC20 token market, Kaspa coin chart, Cryptocurrency market tracker, KAS price tracking, Token prices Kaspa, KAS monitoring, Crypto prices KRC20, KAS crypto news">
+    <meta name="description"
+          content="Track real-time token prices and market trends for KAS and KRC20. Get updates and analytics for informed investment and trading decisions.">
+    <meta name="keywords"
+          content="Kaspa, KAS tokens, KRC20 tokens, Kaspa price, KRC20 token price, KRC20 monitoring, KAS coin tracking, Real-time Kaspa market data, KAS cryptocurrency, KRC20 token market, Kaspa coin chart, Cryptocurrency market tracker, KAS price tracking, Token prices Kaspa, KAS monitoring, Crypto prices KRC20, KAS crypto news">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -13,36 +15,55 @@
     <script type="module" src="/js/main.js"></script>
 </head>
 <body>
-<header class="header-main">
+<header class="header-main mb-3">
     <nav class="navbar navbar-expand-sm bg-body-secondary">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <img src="/images/logos/Kaspa-Icon-256.png" alt="Logo" class="header-main__logo d-inline-block align-middle">
+            <a class="navbar-brand header-main__navbar-brand" href="/">
+                <img src="/images/logos/Kaspa-Icon-256.png" alt="Logo"
+                     class="header-main__logo">
                 kas.watch
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="header-main__navbar-nav navbar-nav ms-auto">
+                <ul class="header-main__navbar-nav text-center navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link btn" role="button" data-bs-toggle="modal" data-bs-target="#modalContact" href="#">Contact</a>
+                        <a class="nav-link btn" role="button" data-bs-toggle="modal" data-bs-target="#modalContact"
+                           href="#">Contact</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link btn" role="button" data-bs-toggle="modal" data-bs-target="#modalAbout" href="#">About</a>
+                        <a class="nav-link btn" role="button" data-bs-toggle="modal" data-bs-target="#modalAbout"
+                           href="#">About</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-warning btn" role="button" data-bs-toggle="modal" data-bs-target="#modalDonate" href="#">Donate</a>
+                        <a class="nav-link text-warning btn" role="button" data-bs-toggle="modal"
+                           data-bs-target="#modalDonate" href="#">Donate</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 </header>
+
+<main>
+    <div class="container">
+        <div class="chart-main mb-3 row">
+            <div class="col-12 text-center">The website is under active development! Stay tuned for updates. 😊 (Soon, this will be replaced with an awesome chart!)</div>
+        </div>
+        <div class="krc20-live row">
+            <div class="krc20-live__transactions col-12 col-md-6 ms-md-auto">
+                <h2 class="m-0 fs-4">Live KRC20 Transactions</h2>
+                <div class="krc20-live__transactions-wrap overflow-auto pb-3" id="krc20Transactions"></div>
+            </div>
+        </div>
+    </div>
+</main>
 
 <!-- Modals -->
 <div class="modal fade" id="modalContact" tabindex="-1" aria-labelledby="modalContact" aria-hidden="true">
@@ -53,7 +74,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Links and etc...
+                Contact page coming soon!
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -70,7 +91,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Iam and and and...
+                About page coming soon!
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -87,11 +108,23 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Help pleaaaseee
+                Donate page coming soon!
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div class="toast align-items-center" id="toastCopy" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                Text copied successfully!
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
 </div>
