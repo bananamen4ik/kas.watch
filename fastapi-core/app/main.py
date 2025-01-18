@@ -178,8 +178,11 @@ async def init_redis(
 ):
     await redis_client.flushall()
 
-    await redis_client.rpush("last_krc20_transactions", *last_krc20_transactions)
-    await redis_client.rpush("last_krc20_transactions_kspr", *last_krc20_transactions_kspr)
+    if len(last_krc20_transactions) != 0:
+        await redis_client.rpush("last_krc20_transactions", *last_krc20_transactions)
+
+    if len(last_krc20_transactions_kspr) != 0:
+        await redis_client.rpush("last_krc20_transactions_kspr", *last_krc20_transactions_kspr)
 
 
 async def init_db():
