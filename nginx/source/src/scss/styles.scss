@@ -51,6 +51,17 @@
   cursor: pointer;
 }
 
+.kas-live__title-span {
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  left: 100%;
+}
+
+.kas-live__dropdown-span {
+  font-size: 0.5rem;
+  transform: translate(0, -50%);
+}
+
 @include media-breakpoint-up(md) {
   .krc20-live__transactions-wrap {
     max-height: 650px;

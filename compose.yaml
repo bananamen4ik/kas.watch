@@ -54,5 +54,15 @@ services:
     depends_on:
       - db
 
+  ex-apis:
+    build: ex-apis
+    container_name: "ex-apis"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+    depends_on:
+      - fastapi-core
+
 volumes:
   db:

@@ -4,8 +4,8 @@ import json
 import asyncio
 from asyncio.tasks import Task
 
-from typing import Optional, List, Sequence, Tuple
-from datetime import datetime, timezone
+from typing import Sequence
+from datetime import datetime
 from contextlib import asynccontextmanager
 
 from sqlalchemy import (
@@ -49,7 +49,6 @@ class KRC20Transaction(Base):
     kas_amount: Mapped[float] = mapped_column(Float, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
 
@@ -61,9 +60,9 @@ class Source(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(30), nullable=False)
-    link: Mapped[Optional[str]] = mapped_column(String)
+    link: Mapped[str | None] = mapped_column(String)
 
-    krc20_transactions: Mapped[List["KRC20Transaction"]] = relationship(back_populates="source")
+    krc20_transactions: Mapped[list["KRC20Transaction"]] = relationship(back_populates="source")
 
 
 config: dict = {
@@ -108,10 +107,10 @@ async def lifespan(app: FastAPI):
 
     last_krc20_transactions, last_krc20_transactions_kspr = await get_last_krc20_transactions()
 
-    last_krc20_transactions_redis: List[str] = await krc20_transactions_to_redis(
+    last_krc20_transactions_redis: list[str] = await krc20_transactions_to_redis(
         last_krc20_transactions
     )
-    last_krc20_transactions_kspr_redis: List[str] = await krc20_transactions_to_redis(
+    last_krc20_transactions_kspr_redis: list[str] = await krc20_transactions_to_redis(
         last_krc20_transactions_kspr
     )
 
@@ -132,7 +131,7 @@ async def mark_as_done_in_redis():
     await redis_client.set("fastapi-core-ready", 1)
 
 
-async def get_last_krc20_transactions() -> Tuple[Sequence[KRC20Transaction], Sequence[KRC20Transaction]]:
+async def get_last_krc20_transactions() -> tuple[Sequence[KRC20Transaction], Sequence[KRC20Transaction]]:
     async with async_session() as session:
         last_krc20_transactions: Sequence[KRC20Transaction] = (await session.execute(
             select(KRC20Transaction).order_by(
@@ -155,7 +154,7 @@ async def get_last_krc20_transactions() -> Tuple[Sequence[KRC20Transaction], Seq
     return last_krc20_transactions, last_krc20_transactions_kspr
 
 
-async def krc20_transactions_to_redis(transactions: Sequence[KRC20Transaction]) -> List[str]:
+async def krc20_transactions_to_redis(transactions: Sequence[KRC20Transaction]) -> list[str]:
     transactions_redis: list[str] = []
 
     for transaction in transactions:
@@ -173,8 +172,8 @@ async def krc20_transactions_to_redis(transactions: Sequence[KRC20Transaction]) 
 
 
 async def init_redis(
-        last_krc20_transactions: List[str],
-        last_krc20_transactions_kspr: List[str]
+        last_krc20_transactions: list[str],
+        last_krc20_transactions_kspr: list[str]
 ):
     await redis_client.flushall()
 
@@ -195,7 +194,7 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
     async with async_session() as session:
-        source: Optional[Source] = (await session.execute(
+        source: Source | None = (await session.execute(
             select(Source).limit(1)
         )).scalar()
 
@@ -217,13 +216,27 @@ async def add_pupsub_reader(pubsub: PubSub, websocket: WebSocket):
             await websocket.send_text(message["data"])
 
 
-async def get_list_redis(key: str) -> List[str]:
+async def get_list_redis(key: str) -> list[str]:
     return await redis_client.lrange(key, 0, -1)
 
 
 async def init_ws_client(websocket: WebSocket):
     for transaction in reversed(await get_list_redis("last_krc20_transactions")):
-        await websocket.send_text(transaction)
+        await websocket.send_text(
+            json.dumps({
+                "method": "last_krc20_transaction",
+                "data": transaction
+            })
+        )
+
+    kas_rates: str | None = await redis_client.get("kas-rates")
+    if kas_rates:
+        await websocket.send_text(
+            json.dumps({
+                "method": "kas-rates",
+                "data": kas_rates
+            })
+        )
 
 
 @app.websocket("/ws")

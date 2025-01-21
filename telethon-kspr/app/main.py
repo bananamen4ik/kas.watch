@@ -3,7 +3,6 @@ import asyncio
 import logging
 import json
 
-from typing import Optional, List
 from datetime import datetime, timezone
 
 from telethon import TelegramClient, events
@@ -48,7 +47,6 @@ class KRC20Transaction(Base):
     kas_amount: Mapped[float] = mapped_column(Float, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(timezone.utc),
         nullable=False
     )
 
@@ -60,9 +58,9 @@ class Source(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(30), nullable=False)
-    link: Mapped[Optional[str]] = mapped_column(String)
+    link: Mapped[str | None] = mapped_column(String)
 
-    krc20_transactions: Mapped[List["KRC20Transaction"]] = relationship(back_populates="source")
+    krc20_transactions: Mapped[list["KRC20Transaction"]] = relationship(back_populates="source")
 
 
 config: dict = {
@@ -113,7 +111,7 @@ async def new_message(event: events.NewMessage.Event):
 
     message: Message = event.message
     peer_id: TypePeer = message.peer_id
-    from_id: Optional[TypePeer] = message.from_id
+    from_id: TypePeer | None = message.from_id
     message_text: str = message.message
 
     if not is_synced:
@@ -125,7 +123,7 @@ async def new_message(event: events.NewMessage.Event):
     if peer_id.channel_id != 2193761946 or from_id.user_id != 7338170991:
         return
 
-    message_data: Optional[dict] = await get_message_data(message_text)
+    message_data: dict | None = await get_message_data(message_text)
     if message_data is None:
         app_logger.warning(f"Skip new message: {message_text}")
         return
@@ -154,6 +152,10 @@ async def new_message(event: events.NewMessage.Event):
 
 async def send_krc20_transaction_to_redis(message_data: dict):
     message_data_json: str = json.dumps(message_data)
+    data: str = json.dumps({
+        "method": "last_krc20_transaction",
+        "data": message_data_json
+    })
 
     await redis_client.lpush("last_krc20_transactions_kspr", message_data_json)
     await redis_client.lpush("last_krc20_transactions", message_data_json)
@@ -164,10 +166,10 @@ async def send_krc20_transaction_to_redis(message_data: dict):
     if (await redis_client.llen("last_krc20_transactions")) > config["last_krc20_transactions_count"]:
         await redis_client.rpop("last_krc20_transactions")
 
-    await redis_client.publish("updates", message_data_json)
+    await redis_client.publish("updates", data)
 
 
-async def get_message_data(message_text: str) -> Optional[dict]:
+async def get_message_data(message_text: str) -> dict | None:
     ticker_pattern: str = r"Ticker: (.+?)\n"
     krc20_amount_pattern: str = r"KRC20 Amount: (.+?)\n"
     kas_amount_pattern: str = r"KAS Amount: (.+?)\n"
@@ -203,10 +205,10 @@ async def sync_krc20_transactions():
     app_logger.info("Started sync krc20 transactions")
 
     async with async_session() as session:
-        last_transaction: Optional[KRC20Transaction] = (await session.execute(
+        last_transaction: KRC20Transaction | None = (await session.execute(
             select(KRC20Transaction).order_by(KRC20Transaction.created_at.desc()).limit(1)
         )).scalar()
-        last_transactions: List[dict] = []
+        last_transactions: list[dict] = []
 
         if last_transaction:
             to_date = last_transaction.created_at
@@ -216,7 +218,7 @@ async def sync_krc20_transactions():
                 PeerChannel(2193761946),
                 from_user=PeerUser(7338170991)
         ):
-            message_data: Optional[dict] = await get_message_data(message.message)
+            message_data: dict | None = await get_message_data(message.message)
 
             if message_data is None:
                 app_logger.debug(f"SKIP {message.message}")

@@ -39,3 +39,9 @@ services:
 
     ports:
       - "127.0.0.1:5540:5540"
+
+  ex-apis:
+    volumes:
+      - type: bind
+        source: ex-apis/app
+        target: /root/app
