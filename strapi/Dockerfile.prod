@@ -1,0 +1,28 @@
+# Creating multi-stage build for production
+FROM node:18-alpine3.21 as build
+RUN apk update && apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev > /dev/null 2>&1
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /root/strapi
+COPY app/package.json app/package-lock.json .
+RUN npm install -g node-gyp
+RUN npm config set fetch-retry-maxtimeout 600000 -g && npm install --only=production
+ENV PATH=/root/strapi/node_modules/.bin:$PATH
+
+WORKDIR /root/strapi/app
+COPY app .
+RUN strapi build
+
+# Creating final production image
+FROM node:18-alpine3.21
+RUN apk add --no-cache vips-dev
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+WORKDIR /root/strapi
+COPY --from=build /root/strapi/node_modules node_modules
+WORKDIR /root/strapi/app
+COPY --from=build /root/strapi/app .
+ENV PATH=/root/strapi/node_modules/.bin:$PATH
+
+CMD ["strapi", "start"]

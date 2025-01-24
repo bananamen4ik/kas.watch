@@ -172,3 +172,4 @@ cython_debug/
 
 # Oth
 app/profile.session-journal
+app/profile-dev.session-journal

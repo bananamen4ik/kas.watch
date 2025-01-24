@@ -2,6 +2,7 @@ import re
 import asyncio
 import logging
 import json
+import os
 
 from datetime import datetime, timezone
 
@@ -68,7 +69,6 @@ config: dict = {
     "last_krc20_transactions_kspr_count": 100
 }
 
-
 logging.basicConfig(
     filename="app.log",
     format="[%(levelname)s] %(asctime)s: %(name)s %(message)s",
@@ -99,7 +99,7 @@ async_session: async_sessionmaker = async_sessionmaker(engine, expire_on_commit=
 
 api_id: int = 25341299
 api_hash: str = "6594f728fbae8e3a7ede766ef7c494bd"
-client: TelegramClient = TelegramClient("profile", api_id, api_hash)
+client: TelegramClient = TelegramClient(os.getenv("TG_SESSION_FILE_NAME", "profile-dev"), api_id, api_hash)
 is_synced: bool = False
 
 redis_client: Redis = Redis(host="redis-server", decode_responses=True)
@@ -213,7 +213,10 @@ async def sync_krc20_transactions():
         if last_transaction:
             to_date = last_transaction.created_at
 
-        await client.get_dialogs()  # fix
+        async for message in client.iter_messages(PeerChannel(2193761946)):
+            if message.from_id == PeerUser(7338170991):
+                break
+
         async for message in client.iter_messages(
                 PeerChannel(2193761946),
                 from_user=PeerUser(7338170991)

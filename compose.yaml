@@ -64,5 +64,29 @@ services:
     depends_on:
       - fastapi-core
 
+  strapi:
+    build: strapi
+    container_name: "strapi"
+    tty: true
+    stdin_open: true
+    restart: unless-stopped
+
+    environment:
+      DATABASE_CLIENT: "postgres"
+      DATABASE_HOST: "db"
+      DATABASE_PORT: "5432"
+      DATABASE_NAME: "strapi"
+      DATABASE_USERNAME: "main"
+      DATABASE_PASSWORD: "vHkSbSY&526_*22a"
+      STRAPI_TELEMETRY_DISABLED: true
+      JWT_SECRET: "EyGJSdYWG0zBGL/YXzZfRg=="
+      ADMIN_JWT_SECRET: "u/rDGGvS9Qtvv8QYviQAng=="
+      APP_KEYS: "V3LWRGHOEXDUsODa/6M7uQ==,McFPvLDh4e4URwRM2uk1wA==,i5Q73xrIp7CN3RONM3Brqw==,Wf+HokqrlWDTjtGbCDgUcg=="
+      API_TOKEN_SALT: "R13O9brjZjnB9+vahWfLrw=="
+      TRANSFER_TOKEN_SALT: "k94jA7w9rIHY0BrHj45J3w=="
+
+    depends_on:
+      - fastapi-core
+
 volumes:
   db:

@@ -27,6 +27,9 @@ services:
         source: telethon-kspr/app
         target: /root/app
 
+    environment:
+      TG_SESSION_FILE_NAME: "profile-dev"
+
   redis-insight:
     image: redis/redisinsight:2.64
     container_name: "redis-insight"
@@ -45,3 +48,15 @@ services:
       - type: bind
         source: ex-apis/app
         target: /root/app
+
+  strapi:
+    build:
+      dockerfile: Dockerfile.dev
+
+    volumes:
+      - type: bind
+        source: strapi/app
+        target: /root/strapi/app
+
+    ports:
+      - "127.0.0.1:1337:1337"

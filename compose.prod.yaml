@@ -6,3 +6,11 @@ services:
   fastapi-core:
     build:
       dockerfile: Dockerfile.prod
+
+  strapi:
+    build:
+      dockerfile: Dockerfile.prod
+
+  telethon-kspr:
+    environment:
+      TG_SESSION_FILE_NAME: "profile"
