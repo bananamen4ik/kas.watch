@@ -1,5 +1,8 @@
 services:
   nginx:
+    environment:
+      MAIN_FILE_CONF: "default-prod.conf"
+
     ports:
       - "443:443"
 

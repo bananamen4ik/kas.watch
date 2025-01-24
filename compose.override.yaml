@@ -9,6 +9,9 @@ services:
         source: nginx/conf
         target: /etc/nginx
 
+    environment:
+      MAIN_FILE_CONF: "default.conf"
+
     ports:
       - "127.0.0.1:80:80"
 
@@ -60,3 +63,4 @@ services:
 
     ports:
       - "127.0.0.1:1337:1337"
+      - "127.0.0.1:5173:5173"
