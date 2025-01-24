@@ -14,6 +14,7 @@ services:
 
     ports:
       - "127.0.0.1:80:80"
+      - "127.0.0.1:5173:5173"
 
   fastapi-core:
     build:
@@ -60,7 +61,3 @@ services:
       - type: bind
         source: strapi/app
         target: /root/strapi/app
-
-    ports:
-      - "127.0.0.1:1337:1337"
-      - "127.0.0.1:5173:5173"
